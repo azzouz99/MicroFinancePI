@@ -4,6 +4,7 @@ import com.example.pidev_finance.entities.Investment;
 
 import com.example.pidev_finance.services.InvestmentService;
 import lombok.AllArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -33,5 +34,10 @@ public class InvestissementRestController {
     @PutMapping ("/update")
     Investment UpdateInvestissement(@RequestBody Investment investment){
         return investmentService.UpdateInvestissement(investment);
+    }
+    @PostMapping("/invest")
+    public ResponseEntity<Investment> invest(@RequestParam Integer clientId, @RequestParam Integer amount) {
+        Investment investment = investmentService.invest(clientId, amount);
+        return ResponseEntity.ok().body(investment);
     }
 }

@@ -10,4 +10,6 @@ public interface InvestmentService {
     void RemoveInvestissement(Integer numInvestissement);
     Investment retrieveInvestissement(Integer numInvestissement);
     Investment UpdateInvestissement(Investment investment);
-}
+    Investment invest(Integer clientId, Integer amount) ;
+    }
+
