@@ -21,6 +21,7 @@ public class Investment implements Serializable {
     private Integer id_client;
     private Integer amount_inv;
     private Date date_inv;
+    private Date date_fin;
     @OneToMany(mappedBy = "investment")
     private List<Transaction> transactions;
 }

@@ -26,4 +26,5 @@ public class User implements Serializable {
     private String user_phone;
     private String Fn_rapport;
     private String badge;
+    private Float amount;
 }
