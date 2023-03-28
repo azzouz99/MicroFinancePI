@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 @RestController
 @AllArgsConstructor
-@RequestMapping("/Investissement")
+@RequestMapping("/Investment")
 public class InvestissementRestController {
     private InvestmentService investmentService;
 
@@ -35,9 +35,12 @@ public class InvestissementRestController {
     Investment UpdateInvestissement(@RequestBody Investment investment){
         return investmentService.UpdateInvestissement(investment);
     }
-    @PostMapping("/pret")
-    public ResponseEntity<Investment> pret(@RequestParam Integer clientId, @RequestParam Integer amount) {
-        Investment investment = investmentService.pret(clientId, amount);
-        return ResponseEntity.ok().body(investment);
+    @PostMapping("/users/{userId}/invest")
+    public void pret(@PathVariable Integer userId, @RequestParam("amount") Float amount,@RequestParam("period") Integer period) {
+        investmentService.pret(userId, amount, period);
+    }
+ @PostMapping("/check")
+    public void checkInvestments() {
+        investmentService.checkInvestments();
     }
 }

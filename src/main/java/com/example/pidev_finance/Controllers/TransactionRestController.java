@@ -35,5 +35,11 @@ public  class TransactionRestController {
     Transaction assignTransactionToInvestment(@PathVariable("id_transaction") Integer id_transaction,@PathVariable("id_invest") Integer id_invest){
         return transactionService.assignTransactionToInvestment(id_transaction,id_invest);
     }
+    @PostMapping("/withdraw/{user_id}/{rece_id}/{amount}")
+    public Transaction withdraw(@PathVariable("user_id") Integer userId,
+                                @PathVariable("amount") Float amount,
+                                @PathVariable("rece_id") Integer receiverId) {
+        return transactionService.withdraw(userId, amount, receiverId);
+    }
 
 }

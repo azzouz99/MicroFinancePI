@@ -1,8 +1,10 @@
 package com.example.pidev_finance.services;
 
 import com.example.pidev_finance.entities.Investment;
+import com.example.pidev_finance.entities.Transaction;
 import com.example.pidev_finance.entities.User;
 import com.example.pidev_finance.repositories.IInvestmentRepository;
+import com.example.pidev_finance.repositories.ITransactionRepository;
 import com.example.pidev_finance.repositories.IUserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -16,7 +18,9 @@ import java.util.List;
 @AllArgsConstructor
 public class InvestmentServiceImpl implements InvestmentService {
     private IInvestmentRepository iinvestmentRepository;
+    private ITransactionRepository iTransactionRepository;
     private IUserRepository userRepository;
+    private TransactionService transactionService;
 
     @Override
     public List<Investment> retrieveAllInvestissements(){
@@ -39,46 +43,32 @@ public class InvestmentServiceImpl implements InvestmentService {
         return iinvestmentRepository.save(investment);
     }
 
+    @Override
     public void pret(Integer userId, Float amount,Integer investmentPeriodInMonths) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("User not found"));
-        Float userAmount = user.getAmount();
-        if (userAmount < amount) {
-            throw new IllegalArgumentException("Insufficient funds");
-        }
-        user.setAmount(userAmount - amount);
-        userRepository.save(user);
-
+        transactionService.withdraw(userId,amount,1);
         Investment investment = new Investment();
         investment.setId_client(userId);
         investment.setAmount_inv(amount);
-        Date investDate = new Date();
-        investment.setDate_inv(investDate);
+        investment.setDate_inv(Calendar.getInstance().getTime());
     Calendar calendar = Calendar.getInstance();
-    calendar.setTime(investDate);
+    calendar.setTime(Calendar.getInstance().getTime());
     calendar.add(Calendar.MONTH, investmentPeriodInMonths);
     Date endDate= calendar.getTime();
-        investment.setDate_fin(endDate);
+        investment.setDatefin(endDate);
+        Float rate = investmentPeriodInMonths == 6 ? 0.035f : 0.1f;
+        investment.setWin(rate*amount);
         iinvestmentRepository.save(investment);
     }
 
     @Transactional
     @Scheduled(fixedDelay = 86400000)
     public void checkInvestments() {
-    List<Investment> investments = iinvestmentRepository.findByDateFinBeforeAndWithdrawnFalse(new Date());
+    List<Investment> investments = iinvestmentRepository.findByDatefinBefore(new Date());
     for (Investment investment : investments) {
-    withdraw(investment.getId_invest());
+    transactionService.withdraw(1,investment.getAmount_inv()+investment.getWin() , investment.getId_client());
     }
     }
-    public void withdraw(Integer investmentId) {
-    Investment investment = iinvestmentRepository.findById(investmentId)
-    .orElseThrow(() -> new IllegalArgumentException("Investment not found"));
-    User user = userRepository.findById(investment.getId_client())
-    .orElseThrow(() -> new IllegalArgumentException("User not found"));
-    Float investedAmount = investment.getAmount_inv();
-    Float finalAmount = investedAmount * 1.1f;
-    user.setAmount(user.getAmount() + finalAmount);
-    userRepository.save(user);
-    iinvestmentRepository.delete(investment);
-    }
+
+
 
 }

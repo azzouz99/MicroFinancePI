@@ -11,6 +11,8 @@ public interface  TransactionService {
     Transaction retrieveTransaction(Integer numTransaction);
     Transaction updateTransaction(Transaction transaction);
     Transaction assignTransactionToInvestment(Integer id_transaction,Integer id_invest);
+    Transaction withdraw(Integer userId,Float amount,Integer receiverId);
+
 
 
 }

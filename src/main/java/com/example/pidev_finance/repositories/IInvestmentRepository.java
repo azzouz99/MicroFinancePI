@@ -7,5 +7,6 @@ import java.util.Date;
 import java.util.List;
 
 public interface IInvestmentRepository extends JpaRepository<Investment,Integer> {
-    List<Investment> findByDateFinBeforeAndWithdrawnFalse(Date date);
+
+    List<Investment> findByDatefinBefore(Date date);
 }

@@ -16,13 +16,12 @@ public class Transaction implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id_transaction;
-    private String visualisation;
+    private Integer sender;
+    private Integer receiver;
     private Date date_transaction;
     @Enumerated(EnumType.STRING)
     private Type_transaction type;
     private Float value;
-    @Enumerated(EnumType.STRING)
-    private MethodType method;
     @Enumerated(EnumType.STRING)
     private Status_Tr status;
     @ManyToOne
