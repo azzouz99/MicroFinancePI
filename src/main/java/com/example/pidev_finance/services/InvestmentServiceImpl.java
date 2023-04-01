@@ -1,6 +1,7 @@
 package com.example.pidev_finance.services;
 
 import com.example.pidev_finance.entities.Investment;
+import com.example.pidev_finance.entities.Status_Tr;
 import com.example.pidev_finance.entities.Transaction;
 import com.example.pidev_finance.entities.User;
 import com.example.pidev_finance.repositories.IInvestmentRepository;
@@ -46,8 +47,10 @@ public class InvestmentServiceImpl implements InvestmentService {
     @Override
     public void pret(Integer userId, Float amount,Integer investmentPeriodInMonths) {
         transactionService.withdraw(userId,amount,1);
+
         Investment investment = new Investment();
-        investment.setId_client(userId);
+        User user = userRepository.findById(userId).orElse(null);
+        investment.setUser(user);
         investment.setAmount_inv(amount);
         investment.setDate_inv(Calendar.getInstance().getTime());
     Calendar calendar = Calendar.getInstance();
@@ -55,6 +58,8 @@ public class InvestmentServiceImpl implements InvestmentService {
     calendar.add(Calendar.MONTH, investmentPeriodInMonths);
     Date endDate= calendar.getTime();
         investment.setDatefin(endDate);
+        investment.setPeriode(investmentPeriodInMonths);
+        investment.setStatus(Status_Tr.PENDING);
         Float rate = investmentPeriodInMonths == 6 ? 0.035f : 0.1f;
         investment.setWin(rate*amount);
         iinvestmentRepository.save(investment);
@@ -65,7 +70,7 @@ public class InvestmentServiceImpl implements InvestmentService {
     public void checkInvestments() {
     List<Investment> investments = iinvestmentRepository.findByDatefinBefore(new Date());
     for (Investment investment : investments) {
-    transactionService.withdraw(1,investment.getAmount_inv()+investment.getWin() , investment.getId_client());
+    transactionService.withdraw(1,investment.getAmount_inv()+investment.getWin() , investment.getUser().getId_user());
     }
     }
 

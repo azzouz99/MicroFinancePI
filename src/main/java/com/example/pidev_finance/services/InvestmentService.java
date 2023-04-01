@@ -10,7 +10,8 @@ public interface InvestmentService {
     void RemoveInvestissement(Integer numInvestissement);
     Investment retrieveInvestissement(Integer numInvestissement);
     Investment UpdateInvestissement(Investment investment);
-    void pret(Integer clientId, Float amount,Integer investmentPeriodInMonths) ;
+    void pret(Integer clientId, Float amount,Integer investmentPeriodInMonths);
+
    void checkInvestments();
 }
 

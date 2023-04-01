@@ -67,6 +67,7 @@ public class TransactionServiceImpl implements TransactionService{
       transaction.setValue(amount);
       transaction.setSender(userId);
       transaction.setReceiver(receiverId);
+      transaction.setUser(user);
 return  ItransactionRepository.save(transaction);
   }
 }
