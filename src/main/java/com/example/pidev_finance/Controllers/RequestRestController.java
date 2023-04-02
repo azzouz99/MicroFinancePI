@@ -1,11 +1,12 @@
 package com.example.pidev_finance.controllers;
 
+import com.example.pidev_finance.entities.AccOrRef;
 import com.example.pidev_finance.entities.Request;
-
 
 
 import com.example.pidev_finance.services.RequestService;
 import lombok.AllArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -39,11 +40,28 @@ public class RequestRestController {
         return requestService.updateRequest(request);
     }
 
-    @GetMapping("/assignreqtooffers_credit/{id_request}/{id_offer}/{id_user}")
+    @GetMapping ("/assignreqtooffers_credit/{id_request}/{id_offer}/{id_user}")
     public Request assignreqtooffers_credit(@PathVariable("id_request") Integer id_request, @PathVariable("id_offer") Integer id_offer,@PathVariable("id_user") Integer id_user){
         return requestService.assignRequestToOffers_Credit(id_request,id_offer,id_user);
     }
-
+    @PostMapping("/mat/{id_request}")
+    void matching(@PathVariable("id_request") Integer id_request){
+        requestService.matching(id_request);
     }
+
+
+
+    @GetMapping("/users/{userId}/loans")
+    public ResponseEntity<List<String>> getLoanStatusForUser(@PathVariable Integer userId) {
+        List<String> loanStatusList = requestService.chek_loan(userId);
+        return ResponseEntity.ok(loanStatusList);
+    }
+
+
+
+
+
+
+ }
 
 

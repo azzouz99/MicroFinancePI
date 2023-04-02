@@ -1,15 +1,18 @@
 package com.example.pidev_finance.services;
+import com.example.pidev_finance.entities.AccOrRef;
+import com.example.pidev_finance.entities.OfferStatistics;
 import com.example.pidev_finance.entities.Offers_Credit;
 import com.example.pidev_finance.entities.Request;
+import com.example.pidev_finance.repositories.IAccOrRefRepository;
 import com.example.pidev_finance.repositories.IOffers_CreditRepository;
 
 import com.example.pidev_finance.repositories.IRequestRepository;
+import jdk.nashorn.internal.runtime.ListAdapter;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 
-import javax.persistence.EntityNotFoundException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -17,12 +20,14 @@ import java.util.Map;
 
 @Service
 @AllArgsConstructor
-public class Offers_CreditServiceImpl implements Offers_CreditService{
+public class Offers_CreditServiceImpl implements Offers_CreditService {
     @Autowired
     private IOffers_CreditRepository Ioffers_creditrepository;
     @Autowired
     private IRequestRepository IRequestRepository;
 
+    @Autowired
+    private IAccOrRefRepository acc;
 
 
     @Override
@@ -60,23 +65,22 @@ public class Offers_CreditServiceImpl implements Offers_CreditService{
 
         Map<Integer, Map<String, Double>> result = new LinkedHashMap<>();
         double capitalRestant = request.getAmount_req();
-        double annuity = calculateAnnuity(request.getAmount_req(), offreCredit.getInterest_rate(), request.getTerm_loan());
-        double term_loan = request.getTerm_loan();
-        double interest_rate= Double.parseDouble(offreCredit.getInterest_rate());
-        double amount_req= request.getAmount_req();
+
+        double annuity = calculateAnnuity(request.getAmount_req(), offreCredit.getInterest_rate(), Integer.parseInt(request.getTerm_loan()));
+        double term_loan = Integer.parseInt(request.getTerm_loan());
+        double interest_rate = Double.parseDouble(offreCredit.getInterest_rate());
+        double amount_req = request.getAmount_req();
 
 
-
-
-        for (int year = 1; year <= request.getTerm_loan(); year++) {
+        for (int year = 1; year <= Integer.parseInt(request.getTerm_loan()); year++) {
             Map<String, Double> yearData = new LinkedHashMap<>();
             double capitalAmorti = calculateCapitalAmorti(capitalRestant, annuity, offreCredit.getInterest_rate());
             capitalRestant -= capitalAmorti;
             yearData.put("capitalAmorti", capitalAmorti);
             yearData.put("capitalRestant", capitalRestant);
             yearData.put("term_loan", term_loan);
-            yearData.put("interest_rate",interest_rate);
-            yearData.put("amount_req",amount_req);
+            yearData.put("interest_rate", interest_rate);
+            yearData.put("amount_req", amount_req);
 
             result.put(year, yearData);
         }
@@ -84,8 +88,6 @@ public class Offers_CreditServiceImpl implements Offers_CreditService{
 
         return result;
     }
-
-
 
 
     private double calculateAnnuity(double amount, String interestRate, int term) {
@@ -101,6 +103,7 @@ public class Offers_CreditServiceImpl implements Offers_CreditService{
         return annuity - (capitalRestant * r);
 
     }
+
     @Override
     public List<Offers_Credit> findMatchingOffer(Integer amount, String repaymentPeriode) {
         // Récupérer toutes les offres de crédit
@@ -109,28 +112,49 @@ public class Offers_CreditServiceImpl implements Offers_CreditService{
         List<Offers_Credit> matchingOffers = new ArrayList<>();
 
         // Parcourir chaque offre de crédit
-        for (Offers_Credit offer : all){
-            if(amount >= offer.getMin_amount() && amount <= offer.getMax_amount()){
-                if (repaymentPeriode.equals(offer.getRepayment_period())){
+        for (Offers_Credit offer : all) {
+            if (amount >= offer.getMin_amount() && amount <= offer.getMax_amount()) {
+                if (repaymentPeriode.equals(offer.getRepayment_period())) {
+
                     matchingOffers.add(offer);
+
+
                 }
             }
         }
 
         return matchingOffers;
     }
+   @Override
+    public OfferStatistics getOfferStatistics(Integer id_offer) {
+
+
+      List<Request> requests=IRequestRepository.findRequestsByOfferId(id_offer);
+        Integer acceptedRequests = 0;
+        Integer rejectedRequests = 0;
+        Integer pendingRequests = 0;
+        for (Request request : requests) {
+
+            if (request.getAccOrRef() != null) {
+                if ("Request accepté".equalsIgnoreCase(request.getAccOrRef().getCheck_loan())) {
+                    acceptedRequests++;
+                } else if ("Request réfusé".equalsIgnoreCase(request.getAccOrRef().getCheck_loan())) {
+                    rejectedRequests++;
+                }
+            } else {
+                pendingRequests++;
+            }
+        }
+        OfferStatistics statistics = new OfferStatistics();
+        statistics.setOfferId(id_offer);
+        statistics.setAcceptedRequests(acceptedRequests);
+        statistics.setRejectedRequests(rejectedRequests);
+        statistics.setPendingRequests(pendingRequests);
+        return statistics;
 
 
 
-
-
-
-
-
-
-
-
-
+   }
 
 
 }

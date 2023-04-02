@@ -1,8 +1,9 @@
 package com.example.pidev_finance.services;
 
+import com.example.pidev_finance.entities.AccOrRef;
+import com.example.pidev_finance.entities.OfferStatistics;
 import com.example.pidev_finance.entities.Offers_Credit;
-
-
+import com.example.pidev_finance.entities.Request;
 
 
 import java.util.List;
@@ -17,6 +18,7 @@ public interface Offers_CreditService {
       //List<Double> calculateAmortization (Integer id_offer);
       Map<Integer, Map<String, Double>> calculateCapitalAmortiAndRestant(Integer id_offer, Integer id_request);
       List<Offers_Credit> findMatchingOffer(Integer amount, String repaymentPeriode);
+    OfferStatistics getOfferStatistics(Integer id_offer);
 
 
 }

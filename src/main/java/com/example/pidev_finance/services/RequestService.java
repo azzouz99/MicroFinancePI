@@ -1,10 +1,8 @@
 package com.example.pidev_finance.services;
 
 
-import com.example.pidev_finance.entities.Offers_Credit;
+import com.example.pidev_finance.entities.AccOrRef;
 import com.example.pidev_finance.entities.Request;
-import com.example.pidev_finance.entities.User;
-
 
 
 import java.util.List;
@@ -17,6 +15,20 @@ public interface RequestService {
     Request updateRequest(Request request);
 
     Request assignRequestToOffers_Credit(Integer id_request, Integer id_offer,Integer id_user );
+    AccOrRef matching (Integer id_request);
+    List<String> chek_loan(Integer id_user);
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

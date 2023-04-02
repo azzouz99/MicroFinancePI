@@ -1,9 +1,9 @@
 package com.example.pidev_finance.Controllers;
 
+import com.example.pidev_finance.entities.OfferStatistics;
 import com.example.pidev_finance.entities.Offers_Credit;
 import com.example.pidev_finance.services.Offers_CreditService;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,6 +15,7 @@ import java.util.Map;
 @RequestMapping("/Offers_Credit")
 public class Offers_CreditRestController {
     private Offers_CreditService offers_creditService;
+
 
 
 
@@ -63,9 +64,17 @@ public class Offers_CreditRestController {
 
 
     }
-
-
+   @GetMapping("/{id_offer}/statistics")
+    public ResponseEntity<OfferStatistics> getOfferStatistics(@PathVariable ("id_offer")Integer id_offer) {
+        OfferStatistics statistics = offers_creditService.getOfferStatistics(id_offer);
+        return ResponseEntity.ok(statistics);
+    }
 
 
 }
+
+
+
+
+
 

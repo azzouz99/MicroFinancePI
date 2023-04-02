@@ -23,14 +23,17 @@ public class Request implements Serializable {
     private String description;
     private String gender;
     private Integer monthly_pay;
-    private Integer term_loan;
+    private String term_loan;
     private String start_repayment;
     @ManyToOne
 
     @JoinColumn(name = "id_offer")
     private Offers_Credit offer;
     @ManyToOne
-
     @JoinColumn(name = "id_user")
     private User user;
+    @OneToOne
+    private AccOrRef accOrRef;
+
+
 }
