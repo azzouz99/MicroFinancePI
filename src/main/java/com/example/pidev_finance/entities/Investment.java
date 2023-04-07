@@ -1,11 +1,13 @@
 package com.example.pidev_finance.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -18,15 +20,15 @@ public class Investment implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id_invest;
-
+    private Integer owner_id;
+    private String project_name;
     private Float amount_inv;
-    private Date date_inv;
-    private Date datefin;
-    private Status_Tr status;
-    private Integer periode;
-    private Float win;
+    private String description;
+    private Date date_debut;
+    private Date date_fin;
+    private Float invest_value;
+    private Status_inv status;
+    private Float income_by_day;
     @OneToMany(mappedBy = "investment")
     private List<Transaction> transactions;
-    @ManyToOne
-    private User user;
 }

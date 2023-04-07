@@ -8,5 +8,4 @@ import java.util.List;
 
 public interface IInvestmentRepository extends JpaRepository<Investment,Integer> {
 
-    List<Investment> findByDatefinBefore(Date date);
 }

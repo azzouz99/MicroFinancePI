@@ -1,9 +1,6 @@
 package com.example.pidev_finance.services;
 
-import com.example.pidev_finance.entities.Investment;
-import com.example.pidev_finance.entities.Status_Tr;
-import com.example.pidev_finance.entities.Transaction;
-import com.example.pidev_finance.entities.User;
+import com.example.pidev_finance.entities.*;
 import com.example.pidev_finance.repositories.IInvestmentRepository;
 import com.example.pidev_finance.repositories.ITransactionRepository;
 import com.example.pidev_finance.repositories.IUserRepository;
@@ -11,12 +8,12 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
-import java.time.LocalDate;
-import java.util.Calendar;
-import java.util.List;
+import java.util.*;
+
 @Service
 @AllArgsConstructor
 public class TransactionServiceImpl implements TransactionService{
+    private EmailSenderService emailSenderService;
     private ITransactionRepository ItransactionRepository;
     private IUserRepository  userRepository;
     private IInvestmentRepository iinvestmentRepository;
@@ -47,8 +44,23 @@ public class TransactionServiceImpl implements TransactionService{
         transaction.setInvestment(investment);
         return ItransactionRepository.save(transaction);
     }
+   @Override
+   public void assignTransactionToUser(Integer userId, Integer transactionId) {
+       User user = userRepository.findById(userId).orElse(null);
+       if (user == null) {
+           throw new IllegalArgumentException("User not found with ID: " + userId);
+       }
+
+       Transaction transaction = ItransactionRepository.findById(transactionId).orElse(null);
+       if (transaction == null) {
+           throw new IllegalArgumentException("Transaction not found with ID: " + transactionId);
+       }
+
+       transaction.setUser(user);
+       ItransactionRepository.save(transaction);
+   }
     @Override
-  public Transaction withdraw(Integer userId,Float amount,Integer receiverId){
+  public Transaction withdraw(Integer userId,Float amount,Integer receiverId,Type_transaction type){
       User user = userRepository.findById(userId)
               .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
       User receiver = userRepository.findById(receiverId)
@@ -59,15 +71,38 @@ public class TransactionServiceImpl implements TransactionService{
           throw new IllegalArgumentException("User does not have enough balance to make the transaction");
       }
       user.setAmount(userAmount - amount);
-      userRepository.save(user);
+
       receiver.setAmount(recAmount + amount);
       userRepository.save(receiver);
       Transaction transaction= new Transaction();
+
       transaction.setDate_transaction(Calendar.getInstance().getTime());
       transaction.setValue(amount);
       transaction.setSender(userId);
       transaction.setReceiver(receiverId);
       transaction.setUser(user);
+      transaction.setType(type);
+
+        userRepository.save(user);
+        if (transaction.getType()==Type_transaction.WITHDRAW){
+            emailSenderService.sendTransactionEmail("samar.saidana@esprit.tn",user.getEmail_address(),transaction.getValue());
+            emailSenderService.receiveTransactionEmail("samar.saidana@esprit.tn",receiver.getEmail_address(),transaction.getValue());
+        }
 return  ItransactionRepository.save(transaction);
   }
+    @Override
+    public Type_transaction testtr(Integer transactionId){
+        Transaction transaction = ItransactionRepository.findById(transactionId)
+                .orElseThrow(() -> new EntityNotFoundException("Transaction not found with id: " + transactionId));
+        Type_transaction type = transaction.getType();
+         return type;
+    }
+@Override
+    public List<Transaction> findByType(Type_transaction type) {
+        return ItransactionRepository.findByType(type);
+    }
+@Override
+    public List<Transaction> findByInvestment(Investment investment) {
+        return ItransactionRepository.findByInvestment(investment);
+    }
 }

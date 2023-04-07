@@ -4,7 +4,6 @@ import com.example.pidev_finance.entities.Investment;
 
 import com.example.pidev_finance.services.InvestmentService;
 import lombok.AllArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -36,11 +35,30 @@ public class InvestissementRestController {
         return investmentService.UpdateInvestissement(investment);
     }
     @PostMapping("/users/{userId}/invest")
-    public void pret(@PathVariable Integer userId, @RequestParam("amount") Float amount,@RequestParam("period") Integer period) {
-        investmentService.pret(userId, amount, period);
+    public void invest(@PathVariable Integer userId, @RequestParam("amount") Float amount,@RequestParam("period") Integer project_id) {
+        investmentService.invest(userId, amount,project_id);
     }
- @PostMapping("/check")
-    public void checkInvestments() {
-        investmentService.checkInvestments();
+
+@GetMapping("/invIncome/{inv_id}")
+    public Float calculateTotalInvestmentIncome(@PathVariable Integer investment_id){
+       return investmentService.calculateTotalInvestmentIncome(investment_id);
     }
-}
+
+    @GetMapping("/invInterest/{inv_id}")
+    public Float calculateTotalInvestmentInterest(@PathVariable Integer investment_id){
+        return investmentService.calculateTotalInvestmentInterest(investment_id);
+    }
+   @PostMapping("/check")
+    public void checkinvest() {
+        investmentService.checkinvest();
+    }
+    @GetMapping("/{calculTotalInvest}")
+    public Float calculateTotalInvestment(@PathVariable Integer investment_id){
+        return investmentService.calculateTotalInvestment(investment_id);
+
+    }
+@PostMapping("/checkst")
+    public void checkInvestStatus(){
+    investmentService.checkInvestStatus();
+    }}
+

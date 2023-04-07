@@ -1,10 +1,12 @@
 package com.example.pidev_finance.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.List;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -30,6 +32,6 @@ public class User implements Serializable {
     private Float amount;
     @OneToMany(mappedBy = "user")
     private List<Transaction> transactions;
-    @OneToMany(mappedBy = "user")
-    private List<Investment> investments;
+
+
 }
