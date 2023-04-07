@@ -66,4 +66,5 @@ UserService userService;
         }
         return ResponseEntity.ok("Logout successful");
     }
+
 }

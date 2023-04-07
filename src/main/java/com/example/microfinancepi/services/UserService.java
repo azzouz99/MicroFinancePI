@@ -16,4 +16,5 @@ public interface UserService {
     boolean isCurrentUser(int id) ;
 
     UserDetails loadUserByUsername(String username);
+
 }

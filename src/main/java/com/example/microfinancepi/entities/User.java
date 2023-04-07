@@ -36,6 +36,7 @@ public class User implements Serializable , UserDetails {
     private String Fn_rapport;
     private String badge;
     private String Sector_activite;
+    private Float amount;
 
     @ManyToMany(mappedBy = "userSet")
     @JsonIgnore
