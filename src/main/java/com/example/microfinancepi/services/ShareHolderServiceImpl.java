@@ -37,11 +37,11 @@ public class ShareHolderServiceImpl implements ShareHolderService {
 
     @Override
     public ShareHolder updateShareHolder(ShareHolder shareholder) {
+        Ishareholderrepository.deleteById(shareholder.getIdShareholder());
         return Ishareholderrepository.save(shareholder);
     }
     @Override
-    public ShareHolder assignShareHolderToEvent(Integer idShareHolder, Integer idEvent){
-        ShareHolder shareholder=Ishareholderrepository.findById(idShareHolder).orElse(null);
+    public ShareHolder assignShareHolderToEvent(ShareHolder shareholder, Integer idEvent){
         Event event=iEventRepository.findById(idEvent).orElse(null);
         shareholder.setEvent(event);
         return Ishareholderrepository.save(shareholder);

@@ -16,6 +16,7 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@Builder
 public class Event implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -32,10 +33,9 @@ public class Event implements Serializable {
     private int dislikes;
     @Enumerated(EnumType.STRING)
     private TypeEvent type;
-    @OneToMany(mappedBy ="event" )
-    @JsonIgnore
+    @OneToMany(mappedBy ="event" , cascade = CascadeType.ALL )
     private List<ShareHolder> shareHolders;
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany(cascade = CascadeType.ALL )
     @JsonIgnore
     private Set<User> userSet;
     @Enumerated(EnumType.STRING)

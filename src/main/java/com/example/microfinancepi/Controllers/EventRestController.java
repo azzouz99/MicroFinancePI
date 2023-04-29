@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@CrossOrigin(origins = "*")
 @RestController
 @AllArgsConstructor
 @RequestMapping("/Event")
@@ -34,7 +35,7 @@ public class EventRestController {
     @Autowired
     private UserRepository userRepository;
 
-    @PostMapping("/add")
+    @PostMapping(    "/add")
     Event addEvent(@RequestBody Event event){
         return eventService.AddEvent(event);
     }
@@ -70,14 +71,14 @@ public class EventRestController {
          eventService.sendEventReminderEmail(eventId);
          return ResponseEntity.ok().build();
      }*/
-   // @Scheduled(fixedRate = 60 * 60 * 1000) // exécute toutes les heures
+    @Scheduled(fixedRate = 60 * 60 * 1000) // exécute toutes les heures
     // @Scheduled(cron="*/30 * * * * *")
-   /* public void sendEventReminderEmails() {
+   public void sendEventReminderEmails() {
         List<Event> events = eventService.getEventsWithin24Hours();
         for (Event event : events) {
             emailSenderService.sendSimpleEmail("samar.saidana@esprit.tn"," Bonjour Ceci est un rappel pour l'événement "+ event.getNameEvent() +"  qui aura lieu dans 24 heures." +"\n\n"+"Cordialement,L'équipe de microfinance.","reminder event "+event.getNameEvent());
         }
-    }*/
+    }
     @GetMapping("/getEventByUser/{id}")
     @Transactional
     List<Event> ShowEventByActivitySector(@PathVariable("id") Integer iduser) {
@@ -137,32 +138,34 @@ public class EventRestController {
             super(message);
         }
     }
-    @PostMapping("/events/{eventId}/cancel")
+    @GetMapping("/events/{eventId}/cancel")
     public ResponseEntity<String> cancelEvent(@PathVariable int eventId) {
         Optional<Event> optionalEvent = iEventRepository.findById(eventId);
         if (optionalEvent.isPresent()) {
             Event event = optionalEvent.get();
+            event.setEventStatus(EventStatus.CANCELLED);
             event.cancelEvent();
-            iEventRepository.delete(event);
-            //emailSenderService.sendSimpleEmail("samar.saidana@esprit.tn"," Bonjour Ceci est une annulation  pour l'événement "+ event.getNameEvent() +"  qui aura lieu le "+ event.getDateEvent() +"\n\n"+"Cordialement,L'équipe de microfinance.","reminder event "+event.getNameEvent());
+            iEventRepository.save(event);
+
+           // emailSenderService.sendSimpleEmail("samar.saidana@esprit.tn"," Bonjour Ceci est une annulation  pour l'événement "+ event.getNameEvent() +"  qui aura lieu le "+ event.getDateEvent() +"\n\n"+"Cordialement,L'équipe de microfinance.","reminder event "+event.getNameEvent());
             return ResponseEntity.ok("Event has been cancelled successfully");
         } else {
             throw new ResourceNotFoundException("Event not found with id " + eventId);
         }
     }
-    @PostMapping("/events/{eventId}/reported")
-    public ResponseEntity<String> reportedEvent(@PathVariable int eventId) {
+    @GetMapping("/events/{eventId}/reported/{nbjours}")
+    public Event reportevent (@PathVariable("eventId") int eventId,@PathVariable("nbjours") int nbjours) {
         Optional<Event> optionalEvent = iEventRepository.findById(eventId);
         if (optionalEvent.isPresent()) {
             Event event = optionalEvent.get();
             event.cancelEvent();
-            event.setDateEvent(event.getDateEvent().plusDays(10));
-            iEventRepository.save(event);
-            //emailSenderService.sendSimpleEmail("samar.saidana@esprit.tn"," Bonjour Ceci est une reportation  pour l'événement  "+ event.getNameEvent() +"  qui sera reporte pour le "+ event.getDateEvent() +"\n\n"+"Cordialement,L'équipe de microfinance.","reminder event "+event.getNameEvent());
-            return ResponseEntity.ok("Event has been reported successfully");
-        } else {
-            throw new ResourceNotFoundException("Event not found with id " + eventId);
+            event.setDateEvent(event.getDateEvent().plusDays(nbjours));
+            event.setEventStatus(EventStatus.REPORTED);
+           // emailSenderService.sendSimpleEmail("samar.saidana@esprit.tn"," Bonjour Ceci est une reportation  pour l'événement  "+ event.getNameEvent() +"  qui sera reporte pour le "+ event.getDateEvent() +"\n\n"+"Cordialement,L'équipe de microfinance.","reminder event "+event.getNameEvent());
+            return iEventRepository.save(event);
+
         }
+        return null;
     }
     @PutMapping("/assignEventtTouser/{idevent}/{iduser}")
     Event assignUsertoEvent(@PathVariable("idevent") Integer idevent,@PathVariable("iduser") Integer idIUser){
@@ -195,7 +198,7 @@ public class EventRestController {
         Event mostFrequent = eventService.findMostFrequentEvent();
         Event lessFrequent = eventService.findLessFrequentEvent();
         List<Event> eventsWithoutShareholders = eventService.findEventsWithoutShareholders();
-        Long nbEventsWithShareholders = eventService.countEventsWithAtLeastOneShareholder();
+        int nbEventsWithShareholders = eventService.countEventsWithAtLeastOneShareholder();
         double percentageWithoutShareholders = eventService.getEventsShareholdersPercentages();
         double percentageWithShareholders = eventService.getEventsShareholdersPercentages1();
 
@@ -216,6 +219,22 @@ public class EventRestController {
                         + "\n\n" + percentageWithoutShareholders + texte6 + "\n\n" + percentageWithShareholders + texte7);
 
         return response;
+    }
+    @GetMapping("/eventinfoStat")
+    public List<String> eventInfoStat() {
+        // Récupérer les données à afficher
+        Event mostFrequent = eventService.findMostFrequentEvent();
+        Event lessFrequent = eventService.findLessFrequentEvent();
+        List<Event> eventsWithoutShareholders = eventService.findEventsWithoutShareholders();
+        int nbEventsWithShareholders = eventService.countEventsWithAtLeastOneShareholder();
+        double percentageWithoutShareholders = eventService.getEventsShareholdersPercentages();
+        double percentageWithShareholders = eventService.getEventsShareholdersPercentages1();
+        List<String> stat = new ArrayList<>();
+        stat.add(mostFrequent.getNameEvent());
+        stat.add(lessFrequent.getNameEvent());
+        stat.add(String.valueOf(nbEventsWithShareholders));
+        stat.add(String.valueOf(eventsWithoutShareholders.size()));
+    return stat;
     }
 
 }

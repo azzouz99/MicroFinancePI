@@ -12,7 +12,7 @@ public interface ShareHolderService {
     void removeShareHolder(Integer numShareholder);
     ShareHolder retrieveShareHolder(Integer numShareholder);
     ShareHolder updateShareHolder(ShareHolder shareholder);
-    ShareHolder assignShareHolderToEvent(Integer idShareHolder, Integer idEvent);
+    ShareHolder assignShareHolderToEvent(ShareHolder shareholder, Integer idEvent);
 
     List<ShareHolder> findShareholdersWithMoreThanOneEvent();
     int getEventYear(ShareHolder shareHolder);

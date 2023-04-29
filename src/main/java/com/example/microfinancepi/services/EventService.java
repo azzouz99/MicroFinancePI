@@ -35,7 +35,7 @@ public interface EventService {
     Event findMostFrequentEvent();
     Event findLessFrequentEvent();
     List<Event> findEventsWithoutShareholders();
-    Long countEventsWithAtLeastOneShareholder();
+    int countEventsWithAtLeastOneShareholder();
     double getEventsShareholdersPercentages();
     double getEventsShareholdersPercentages1();
 }

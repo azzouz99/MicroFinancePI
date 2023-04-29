@@ -13,7 +13,6 @@ import java.util.List;
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor
-
 @Entity
 public class ShareHolder implements Serializable {
 
@@ -25,10 +24,10 @@ public class ShareHolder implements Serializable {
     private String FirstNameShareholder;
     private double investment;
     private String Email;
-    private int numTel;
+    private String numTel;
     @Enumerated(EnumType.STRING)
     private TypeShareholder partner;
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JsonIgnore
     private Event event;
 

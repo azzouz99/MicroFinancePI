@@ -16,6 +16,7 @@ import org.apache.commons.math3.analysis.solvers.UnivariateSolver;
 
 
 @RestController
+@CrossOrigin(origins = "http://localhost:4200")
 @AllArgsConstructor
 @RequestMapping("/ShareHolder")
 
@@ -50,9 +51,9 @@ public class ShareHolderRestController {
         return shareholderservice.updateShareHolder(shareHolder);
     }
 
-    @PutMapping("/assignshrtoevent/{idShareHolder}/{idEvent}")
-    public ShareHolder assignshrtoevent(@PathVariable("idShareHolder") Integer idShareHolder, @PathVariable("idEvent") Integer idEvent) {
-        return shareholderservice.assignShareHolderToEvent(idShareHolder, idEvent);
+    @PutMapping("/assignshrtoevent/{idEvent}")
+    public ShareHolder assignshrtoevent(@RequestBody ShareHolder shareHolder, @PathVariable("idEvent") Integer idEvent) {
+        return shareholderservice.assignShareHolderToEvent(shareHolder, idEvent);
     }
 
 
@@ -100,6 +101,22 @@ public class ShareHolderRestController {
 
         return response;
     }
+    @GetMapping("/partnerStat")
+    public List<String> partnerInfoStat() {
+        // Récupérer les données à afficher
+        ShareHolder mostFrequent = shareholderservice.findMostFrequentPartner();
+        ShareHolder lessFrequent = shareholderservice.findLessFrequentPartner();
+        List<ShareHolder> partnersWithoutEvents = shareholderservice.findPartnersWithoutEvents();
+        Long nbPartnerWithEvent = shareholderservice.countPartnersWithEvents();
+        double percentageWithoutEvent = shareholderservice.getPartnersEventPercentages();
+        double percentageWithEvent = shareholderservice.getPartnersEventPercentages1();
+        List<String> stat = new ArrayList<>();
+        stat.add(mostFrequent.getFirstNameShareholder());
+        stat.add(lessFrequent.getFirstNameShareholder());
+        stat.add(String.valueOf(nbPartnerWithEvent));
+        stat.add(String.valueOf(partnersWithoutEvents.size()));
+        return stat;
+    }
 
     @GetMapping("/kmeansForDataanalysis")
     @ResponseBody
@@ -116,10 +133,11 @@ public class ShareHolderRestController {
         for (int i = 0; i < clients.size(); i++) {
             listinvestment.add(clients.get(i).getInvestment());
         }
-
+// remplir la liste points avec des objets DataPoint. Chaque objet DataPoint est créé à partir d'un élément de la liste listinvestment
         for (int i = 0; i < clients.size(); i++) {
             points.add(new DataPoint(listinvestment.get(i)));
         }
+        //utilise la classe KMeans pour effectuer une analyse de clustering K-means sur les points, en utilisant un initialisateur de type RandomInitialiser.
         KMeans kMeans = new KMeans(3, points, new RandomInitialiser());
 
         return kMeans;
@@ -168,7 +186,7 @@ public class ShareHolderRestController {
         double TRI = irr(cashFlows);
         return TRI;
     }
-
+//la méthode de Newton-Raphson:TRI = x1 - (f(x1) / f'(x1))
     private double irr(double[] cashFlows) {
         double x0 = 0.1; // Valeur initiale de la recherche
         double tolerance = 0.00001; // Tolérance de la recherche
@@ -195,14 +213,22 @@ public class ShareHolderRestController {
         }
 
         return x1; }
-    @GetMapping("/calculrendement/{id}/{taux}")
+    @GetMapping("/calculateROI/{idPartenaire}/{idEvent}")
+    public double calculateROI(@PathVariable("idPartenaire") int idPartenaire, @PathVariable("idEvent") int idEvent) {
+        ShareHolder partenaire = Ishareholderrepository.findById(idPartenaire).orElse(null);
+        double revenue =eventService.getTotalInvestmentInEvent(idEvent);
+        double investment = partenaire.getInvestment();
+        double roi = (revenue - investment) / investment;
+        return roi;
+    }
+   /* @GetMapping("/calculrendement/{id}/{taux}")
     public double calculerRendement(@PathVariable("id") int idpartenaire,@PathVariable("taux") double taux) {
         ShareHolder shareholder = Ishareholderrepository.findById(idpartenaire).orElse(null);
         double rendement = shareholder.getInvestment() * taux;
         return rendement;
-    }
+    }*/
 
-@GetMapping("/evaluerRisque/{idshareholder}/{duree}")
+/*@GetMapping("/evaluerRisque/{idshareholder}/{duree}")
 public ResponseEntity<String> evaluerRisque(@PathVariable("idshareholder") int idpartenaire, @PathVariable("duree") int duree) {
     ShareHolder shareholder = Ishareholderrepository.findById(idpartenaire).orElse(null);
     double rentabilite = calculerRendement(idpartenaire, 0.1);
@@ -212,7 +238,7 @@ public ResponseEntity<String> evaluerRisque(@PathVariable("idshareholder") int i
     } else {
         return new ResponseEntity<>("Investissement prudent", HttpStatus.OK);
     }
-}
+}*/
 
 
 }

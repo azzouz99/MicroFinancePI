@@ -5,6 +5,7 @@ import com.example.microfinancepi.repositories.IEventRepository;
 import com.example.microfinancepi.repositories.IShareholderRepository;
 import com.example.microfinancepi.repositories.UserRepository;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +18,7 @@ import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class EventServiceImpl implements EventService {
 
     private IEventRepository Ieventrepository;
@@ -47,6 +49,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public Event updateEvent(Event event) {
+        Ieventrepository.deleteById(event.getIdEvent());
         return Ieventrepository.save(event);
     }
 
@@ -237,8 +240,16 @@ public class EventServiceImpl implements EventService {
         return Ieventrepository.findEventsWithoutShareholders();
     }
 
-    public Long countEventsWithAtLeastOneShareholder() {
-        return Ieventrepository.countEventsWithAtLeastOneShareholder();
+    public int countEventsWithAtLeastOneShareholder() {
+      int nbr=0;
+        List<Event> eventList = new ArrayList<>();
+        eventList = Ieventrepository.findAll();
+        for( Event Event :eventList){
+            if( !Event.getShareHolders().isEmpty()){
+                nbr++;
+            }
+        }
+        return nbr;
     }
 
     public double getEventsShareholdersPercentages() {
